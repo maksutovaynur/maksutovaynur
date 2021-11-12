@@ -668,28 +668,6 @@ eval("\n\n/* istanbul ignore next  */\nfunction styleTagTransform(css, styleElem
 
 /***/ }),
 
-/***/ "./src/shader/common.vert":
-/*!********************************!*\
-  !*** ./src/shader/common.vert ***!
-  \********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"precision highp float;\\n\\nattribute vec2 aVertexPosition;\\nattribute vec3 aColor;\\nattribute vec2 aUvs;\\n\\nuniform mat3 translationMatrix;\\nuniform mat3 projectionMatrix;\\n\\nvarying vec2 vUvs;\\nvarying vec3 vColor;\\n\\nvoid main() {\\n    vUvs = aUvs;\\n    vColor = aColor;\\n    gl_Position = vec4((projectionMatrix * translationMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\\n}\");\n\n//# sourceURL=webpack://p1/./src/shader/common.vert?");
-
-/***/ }),
-
-/***/ "./src/shader/mand.frag":
-/*!******************************!*\
-  !*** ./src/shader/mand.frag ***!
-  \******************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"uniform sampler2D tex;\\nvarying vec3 vColor;\\nvarying vec2 vUvs;\\n\\nvoid main() {\\n    vec2 z, c;\\n    int i = 0;\\n    const int iter = {iter};\\n\\n    c.x = vUvs.x;\\n    c.y = vUvs.y;\\n\\n    z = c;\\n    for ( int it = 0; it < iter; it++ ) {\\n        float x = (z.x * z.x - z.y * z.y) + c.x;\\n        float y = (z.y * z.x + z.x * z.y) + c.y;\\n\\n        if((x * x + y * y) > 4.0) break;\\n        z.x = x;\\n        z.y = y;\\n        i = it;\\n    }\\n    vec4 mand = texture2D(tex, vec2(float(i) / float(iter), 0));\\n    gl_FragColor = mand;\\n}\");\n\n//# sourceURL=webpack://p1/./src/shader/mand.frag?");
-
-/***/ }),
-
 /***/ "./node_modules/url/url.js":
 /*!*********************************!*\
   !*** ./node_modules/url/url.js ***!
@@ -719,7 +697,7 @@ eval("\n\nmodule.exports = {\n  isString: function(arg) {\n    return typeof(arg
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (/* binding */ createApp)\n/* harmony export */ });\n/* harmony import */ var pixi_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! pixi.js */ \"./node_modules/pixi.js/dist/esm/pixi.js\");\n/* harmony import */ var _pixi_events__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @pixi/events */ \"./node_modules/@pixi/events/dist/esm/events.js\");\n/* harmony import */ var _shader_common_vert__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../shader/common.vert */ \"./src/shader/common.vert\");\n/* harmony import */ var _shader_mand_frag__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../shader/mand.frag */ \"./src/shader/mand.frag\");\n\n\n\n\n\ndelete pixi_js__WEBPACK_IMPORTED_MODULE_0__.Renderer.__plugins.interaction;\n\nfunction sc(scale) {\n    return Math.exp(scale);\n}\n\nfunction createApp(parent, controlSens, controlInv, shaderIter) {\n    const shape = createShape(parent.clientWidth, parent.clientHeight, sc(-1), shaderIter);\n    const app = new pixi_js__WEBPACK_IMPORTED_MODULE_0__.Application({resizeTo: parent});\n    parent.appendChild(app.view);\n    app.stage.addChild(shape);\n    app.ticker.add((delta) => {});\n    if (!('events' in app.renderer)) {\n        app.renderer.addSystem(_pixi_events__WEBPACK_IMPORTED_MODULE_1__.EventSystem, 'events');\n    }\n    setupEvents(app.stage, shape, controlSens, controlInv);\n}\n\nfunction setupEvents(stage, shape, controlSens, controlInv) {\n    stage.interactive = true;\n    stage.addEventListener('pointerdown', onDragStart);\n    let cx = 0, cy = 0, sx = 0, sy = 0;\n    function onDragStart(e) {\n        console.log('OnDragStart');\n        stage.addEventListener('pointermove', onDragMove);\n        cx = e.global.x;\n        cy = e.global.y;\n        sx = shape.position.x;\n        sy = shape.position.y;\n    }\n    stage.addEventListener('pointerup', onDragEnd);\n    stage.addEventListener('pointerupoutside', onDragEnd);\n    function onDragEnd(e) {\n        stage.removeEventListener('pointermove', onDragMove);\n    }\n    function onDragMove(e) {\n        const deltaX = e.global.x - cx;\n        const deltaY = e.global.y - cy;\n        console.log(deltaX);\n        shape.position.set(\n            sx + deltaX,\n            sy + deltaY,\n        );\n        cx = e.global.x;\n        cy = e.global.y;\n        sx = shape.position.x;\n        sy = shape.position.y;\n    }\n\n    stage.addEventListener('wheel', wheelTrack);\n\n    function wheelTrack(e) {\n        const sensitivity = Math.log(1 + controlSens.value / controlSens.max / 10) / 5;\n        const deltaScale = Math.exp((controlInv.checked ? -1 : 1) * e.deltaY * sensitivity);\n        const {x: _ssx, y: _ssy} = shape.scale;\n        const {x: _sx, y: _sy} = shape.position;\n        const {x: _cx, y: _cy} = e.global;\n        shape.position.set(_cx + (_sx - _cx)*deltaScale, _cy + (_sy - _cy)*deltaScale);\n        shape.scale.set(_ssx * deltaScale, _ssy * deltaScale);\n    }\n}\n\nfunction createShape(x, y, minscale = 0.01, shaderIter=512) {\n    const scale = 2 / Math.min(x, y);\n    const shape = new pixi_js__WEBPACK_IMPORTED_MODULE_0__.Mesh(\n        loadGeometry(x / minscale, y / minscale, scale, scale * minscale),\n        loadShader(shaderIter)\n    );\n    shape.position.set(x / 2, y / 2);\n    shape.scale.set(minscale);\n    return shape;\n}\n\nfunction loadShader(iter = 5) {\n    const fragSrc = _shader_mand_frag__WEBPACK_IMPORTED_MODULE_3__[\"default\"].replace(\"{iter}\", iter);\n    const vertSrc = _shader_common_vert__WEBPACK_IMPORTED_MODULE_2__[\"default\"];\n    const uniform = {\n        tex: pixi_js__WEBPACK_IMPORTED_MODULE_0__.Texture.from('pal.png'),\n        center: {type: 'v2', value: {x: 0, y: 0}}\n    }\n    return pixi_js__WEBPACK_IMPORTED_MODULE_0__.Shader.from(vertSrc, fragSrc, uniform);\n}\n\nfunction loadGeometry(w, h, worldScale = 1, colorScale = 1) {\n    const X = w / 2, Y = h / 2;\n    const wX = X * worldScale, wY = Y * worldScale;\n    const cX = X * colorScale, cY = Y * colorScale;\n    return new pixi_js__WEBPACK_IMPORTED_MODULE_0__.Geometry()\n        .addAttribute('aVertexPosition', [-X, -Y, X, -Y, X, Y, -X, Y], 2)\n        .addAttribute('aColor', [0, 0, 0, /**/ cX, 0, 0, /**/ cX, cY, 0, /**/ 0, cY, 0], 3)\n        .addAttribute('aUvs', [-wX, -wY, wX, -wY, wX, wY, -wX, wY], 2)\n        .addIndex([0, 1, 2, 0, 2, 3]);\n}\n\n\n//# sourceURL=webpack://p1/./src/app/app.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (/* binding */ createApp)\n/* harmony export */ });\n/* harmony import */ var pixi_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! pixi.js */ \"./node_modules/pixi.js/dist/esm/pixi.js\");\n/* harmony import */ var _pixi_events__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @pixi/events */ \"./node_modules/@pixi/events/dist/esm/events.js\");\n/* harmony import */ var _shader_common_vert__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../shader/common.vert */ \"./src/shader/common.vert\");\n/* harmony import */ var _shader_mand_frag__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../shader/mand.frag */ \"./src/shader/mand.frag\");\n/* harmony import */ var _public_pal_png__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../public/pal.png */ \"./src/public/pal.png\");\n\n\n\n\n\n\ndelete pixi_js__WEBPACK_IMPORTED_MODULE_0__.Renderer.__plugins.interaction;\n\nfunction sc(scale) {\n    return Math.exp(scale);\n}\n\nfunction createApp(parent, controlSens, controlInv, shaderIter) {\n    const shape = createShape(parent.clientWidth, parent.clientHeight, sc(-1), shaderIter);\n    const app = new pixi_js__WEBPACK_IMPORTED_MODULE_0__.Application({resizeTo: parent});\n    parent.appendChild(app.view);\n    app.stage.addChild(shape);\n    app.ticker.add((delta) => {});\n    if (!('events' in app.renderer)) {\n        app.renderer.addSystem(_pixi_events__WEBPACK_IMPORTED_MODULE_1__.EventSystem, 'events');\n    }\n    setupEvents(app.stage, shape, controlSens, controlInv);\n}\n\nfunction setupEvents(stage, shape, controlSens, controlInv) {\n    stage.interactive = true;\n    stage.addEventListener('pointerdown', onDragStart);\n    let cx = 0, cy = 0, sx = 0, sy = 0;\n    function onDragStart(e) {\n        console.log('OnDragStart');\n        stage.addEventListener('pointermove', onDragMove);\n        cx = e.global.x;\n        cy = e.global.y;\n        sx = shape.position.x;\n        sy = shape.position.y;\n    }\n    stage.addEventListener('pointerup', onDragEnd);\n    stage.addEventListener('pointerupoutside', onDragEnd);\n    function onDragEnd(e) {\n        stage.removeEventListener('pointermove', onDragMove);\n    }\n    function onDragMove(e) {\n        const deltaX = e.global.x - cx;\n        const deltaY = e.global.y - cy;\n        console.log(deltaX);\n        shape.position.set(\n            sx + deltaX,\n            sy + deltaY,\n        );\n        cx = e.global.x;\n        cy = e.global.y;\n        sx = shape.position.x;\n        sy = shape.position.y;\n    }\n\n    stage.addEventListener('wheel', wheelTrack);\n\n    function wheelTrack(e) {\n        const sensitivity = Math.log(1 + controlSens.value / controlSens.max / 10) / 5;\n        const deltaScale = Math.exp((controlInv.checked ? -1 : 1) * e.deltaY * sensitivity);\n        const {x: _ssx, y: _ssy} = shape.scale;\n        const {x: _sx, y: _sy} = shape.position;\n        const {x: _cx, y: _cy} = e.global;\n        shape.position.set(_cx + (_sx - _cx)*deltaScale, _cy + (_sy - _cy)*deltaScale);\n        shape.scale.set(_ssx * deltaScale, _ssy * deltaScale);\n    }\n}\n\nfunction createShape(x, y, minscale = 0.01, shaderIter=512) {\n    const scale = 2 / Math.min(x, y);\n    const shape = new pixi_js__WEBPACK_IMPORTED_MODULE_0__.Mesh(\n        loadGeometry(x / minscale, y / minscale, scale, scale * minscale),\n        loadShader(shaderIter)\n    );\n    shape.position.set(x / 2, y / 2);\n    shape.scale.set(minscale);\n    return shape;\n}\n\nfunction loadShader(iter = 5) {\n    const fragSrc = _shader_mand_frag__WEBPACK_IMPORTED_MODULE_3__.replace(\"{iter}\", iter);\n    const vertSrc = _shader_common_vert__WEBPACK_IMPORTED_MODULE_2__;\n    const uniform = {\n        tex: pixi_js__WEBPACK_IMPORTED_MODULE_0__.Texture.from(_public_pal_png__WEBPACK_IMPORTED_MODULE_4__),\n        center: {type: 'v2', value: {x: 0, y: 0}}\n    }\n    return pixi_js__WEBPACK_IMPORTED_MODULE_0__.Shader.from(vertSrc, fragSrc, uniform);\n}\n\nfunction loadGeometry(w, h, worldScale = 1, colorScale = 1) {\n    const X = w / 2, Y = h / 2;\n    const wX = X * worldScale, wY = Y * worldScale;\n    const cX = X * colorScale, cY = Y * colorScale;\n    return new pixi_js__WEBPACK_IMPORTED_MODULE_0__.Geometry()\n        .addAttribute('aVertexPosition', [-X, -Y, X, -Y, X, Y, -X, Y], 2)\n        .addAttribute('aColor', [0, 0, 0, /**/ cX, 0, 0, /**/ cX, cY, 0, /**/ 0, cY, 0], 3)\n        .addAttribute('aUvs', [-wX, -wY, wX, -wY, wX, wY, -wX, wY], 2)\n        .addIndex([0, 1, 2, 0, 2, 3]);\n}\n\n\n//# sourceURL=webpack://p1/./src/app/app.js?");
 
 /***/ }),
 
@@ -731,6 +709,39 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 
 "use strict";
 eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _style_index_sass__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../style/index.sass */ \"./src/style/index.sass\");\n/* harmony import */ var _app__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./app */ \"./src/app/app.js\");\n\n\n\nconst app = (0,_app__WEBPACK_IMPORTED_MODULE_1__[\"default\"])(\n    document.getElementById(\"app\"),\n    document.getElementById('control-sens'),\n    document.getElementById('control-inv'),\n    128\n);\n\n\n//# sourceURL=webpack://p1/./src/app/index.js?");
+
+/***/ }),
+
+/***/ "./src/public/pal.png":
+/*!****************************!*\
+  !*** ./src/public/pal.png ***!
+  \****************************/
+/***/ ((module) => {
+
+"use strict";
+eval("module.exports = \"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAABCAIAAAC+O+cgAAAACXBIWXMAAABIAAAASABGyWs+AAAATElEQVQoz9WOOwrAMAxDX0GD7n/aDBk6BOOUdHCghRaM0DPy5wAAgUNdw3psOE2KkBeM5gXnWd+sUh5w6oMoQ49qO+a1/Fff+Vc1AE6ffp4CO5BJRAAAAABJRU5ErkJggg==\";\n\n//# sourceURL=webpack://p1/./src/public/pal.png?");
+
+/***/ }),
+
+/***/ "./src/shader/common.vert":
+/*!********************************!*\
+  !*** ./src/shader/common.vert ***!
+  \********************************/
+/***/ ((module) => {
+
+"use strict";
+eval("module.exports = \"precision highp float;\\n\\nattribute vec2 aVertexPosition;\\nattribute vec3 aColor;\\nattribute vec2 aUvs;\\n\\nuniform mat3 translationMatrix;\\nuniform mat3 projectionMatrix;\\n\\nvarying vec2 vUvs;\\nvarying vec3 vColor;\\n\\nvoid main() {\\n    vUvs = aUvs;\\n    vColor = aColor;\\n    gl_Position = vec4((projectionMatrix * translationMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\\n}\";\n\n//# sourceURL=webpack://p1/./src/shader/common.vert?");
+
+/***/ }),
+
+/***/ "./src/shader/mand.frag":
+/*!******************************!*\
+  !*** ./src/shader/mand.frag ***!
+  \******************************/
+/***/ ((module) => {
+
+"use strict";
+eval("module.exports = \"uniform sampler2D tex;\\nvarying vec3 vColor;\\nvarying vec2 vUvs;\\n\\nvoid main() {\\n    vec2 z, c;\\n    int i = 0;\\n    const int iter = {iter};\\n\\n    c.x = vUvs.x;\\n    c.y = vUvs.y;\\n\\n    z = c;\\n    for ( int it = 0; it < iter; it++ ) {\\n        float x = (z.x * z.x - z.y * z.y) + c.x;\\n        float y = (z.y * z.x + z.x * z.y) + c.y;\\n\\n        if((x * x + y * y) > 4.0) break;\\n        z.x = x;\\n        z.y = y;\\n        i = it;\\n    }\\n    vec4 mand = texture2D(tex, vec2(float(i) / float(iter), 0));\\n    gl_FragColor = mand;\\n}\";\n\n//# sourceURL=webpack://p1/./src/shader/mand.frag?");
 
 /***/ })
 
